@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Generator from URL</title>
+</head>
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
+  <h1>QR Generator from URL</h1>
+
+  <input type="text" id="urlInput" placeholder="Enter URL" style="width: 300px; padding: 5px;">
+  <button onclick="generateQR()" style="padding: 5px 10px; margin-left: 10px;">Generate</button>
+
+  <div id="qrResult" style="margin-top: 20px;"></div>
+
+  <div id="downloadSection" style="margin-top: 20px; display: none;">
+    <label for="formatSelect">Choose format: </label>
+    <select id="formatSelect">
+      <option value="png">PNG</option>
+      <option value="jpeg">JPG</option>
+      <option value="webp">WEBP</option>
+    </select>
+    <button onclick="downloadQR()" style="padding: 5px 10px; margin-left: 10px;">Download</button>
+  </div>
+
+  <script>
+    let currentQrBase64 = "";
+
+    async function generateQR() {
+      const url = document.getElementById("urlInput").value;
+      if (!url) {
+        alert("Please enter a URL");
+        return;
+      }
+
+      const response = await fetch("/api/v1/qr/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await response.json();
+      currentQrBase64 = data.qr_code_base64;
+
+      document.getElementById("qrResult").innerHTML =
+        `<img id="qrImage" src="${currentQrBase64}" alt="QR Code" style="width:350px; height:350px;"/>`;
+
+      document.getElementById("downloadSection").style.display = "block";
+    }
+
+    function downloadQR() {
+      const format = document.getElementById("formatSelect").value;
+      const img = document.getElementById("qrImage");
+
+      // Draw image on canvas to convert into chosen format
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      const dataURL = canvas.toDataURL(`image/${format}`);
+      const a = document.createElement("a");
+      a.href = dataURL;
+      a.download = `qrcode.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
