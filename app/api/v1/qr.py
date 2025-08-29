@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
 @router.post("/", response_model=QRResponse)
 async def create_qr(request: QRRequest):
     logger.info(f"Received QR generation request for URL: {request.url}")
@@ -16,5 +17,7 @@ async def create_qr(request: QRRequest):
         logger.info("QR code generated successfully.")
         return QRResponse(url=str(request.url), qr_code_base64=qr_code_b64)
     except Exception as e:
-        logger.error(f"Error generating QR code for URL {request.url}: {e}", exc_info=True)
+        logger.error(
+            f"Error generating QR code for URL {request.url}: {e}", exc_info=True
+        )
         raise
