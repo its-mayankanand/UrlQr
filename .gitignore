@@ -1,3 +1,5 @@
 urlqrvenv/
 **/__pycache__/
 
+# Environment files
+.env

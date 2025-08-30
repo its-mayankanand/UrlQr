@@ -56,3 +56,9 @@
 2025-08-30 15:34:45,527 - INFO - urlqr - Application shutdown
 2025-08-30 15:34:47,665 - INFO - urlqr - Application startup
 2025-08-30 15:35:38,912 - INFO - urlqr - Application shutdown
+2025-08-30 15:35:40,999 - INFO - urlqr - Application startup
+2025-08-30 16:26:47,729 - INFO - app.api.v1.qr - Received QR generation request for URL: https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa
+2025-08-30 16:26:47,730 - INFO - urlqr - Generating QR code for URL: https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa
+2025-08-30 16:26:47,864 - INFO - urlqr - QR code generation completed successfully.
+2025-08-30 16:26:47,865 - INFO - app.api.v1.qr - QR code generated successfully.
+2025-08-30 16:57:01,169 - INFO - urlqr - Application shutdown
