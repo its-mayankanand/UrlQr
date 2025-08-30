@@ -13,8 +13,3 @@ logging.basicConfig(
 
 # Create a reusable project-wide logger
 logger = logging.getLogger("urlqr")
-
-
-# For future configs (DB URL, env vars etc.)
-PROJECT_NAME = "QR Generator"
-VERSION = "1.0.0"

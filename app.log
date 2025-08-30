@@ -31,3 +31,28 @@
 2025-08-30 13:22:34,031 - INFO - urlqr - Application startup
 2025-08-30 13:22:45,276 - INFO - urlqr - Application shutdown
 2025-08-30 13:22:45,790 - INFO - urlqr - Application startup
+2025-08-30 13:39:05,282 - INFO - app.api.v1.qr - Received QR generation request for URL: https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa
+2025-08-30 13:39:05,283 - INFO - urlqr - Generating QR code for URL: https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa
+2025-08-30 13:39:05,378 - INFO - urlqr - QR code generation completed successfully.
+2025-08-30 13:39:05,379 - INFO - app.api.v1.qr - QR code generated successfully.
+2025-08-30 13:39:35,621 - INFO - app.api.v1.qr - Received QR generation request for URL: https://example.com/
+2025-08-30 13:39:35,621 - INFO - urlqr - Generating QR code for URL: https://example.com/
+2025-08-30 13:39:35,645 - INFO - urlqr - QR code generation completed successfully.
+2025-08-30 13:39:35,646 - INFO - app.api.v1.qr - QR code generated successfully.
+2025-08-30 14:11:38,652 - INFO - urlqr - Application shutdown
+2025-08-30 14:11:39,898 - INFO - urlqr - Application startup
+2025-08-30 15:02:54,437 - INFO - urlqr - Application shutdown
+2025-08-30 15:02:55,478 - INFO - urlqr - Application startup
+2025-08-30 15:20:49,676 - INFO - urlqr - Application shutdown
+2025-08-30 15:20:50,756 - INFO - urlqr - Application startup
+2025-08-30 15:23:34,136 - INFO - urlqr - Application shutdown
+2025-08-30 15:23:35,011 - INFO - urlqr - Application startup
+2025-08-30 15:25:13,927 - INFO - urlqr - Application shutdown
+2025-08-30 15:25:14,876 - INFO - urlqr - Application startup
+2025-08-30 15:26:30,434 - INFO - urlqr - Application shutdown
+2025-08-30 15:26:31,394 - INFO - urlqr - Application startup
+2025-08-30 15:32:02,573 - INFO - urlqr - Application shutdown
+2025-08-30 15:32:05,102 - INFO - urlqr - Application startup
+2025-08-30 15:34:45,527 - INFO - urlqr - Application shutdown
+2025-08-30 15:34:47,665 - INFO - urlqr - Application startup
+2025-08-30 15:35:38,912 - INFO - urlqr - Application shutdown
