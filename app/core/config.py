@@ -1,3 +1,4 @@
+#Adding Linting using ruff
 import logging
 
 # Configure logging for the entire project
