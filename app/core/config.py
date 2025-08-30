@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Read values from environment (must exist in .env or system env)
-LOG_LEVEL = os.environ["LOG_LEVEL"]
-LOG_FILE = os.environ["LOG_FILE"]
-LOGGER_NAME = os.environ["LOGGER_NAME"]
+LOG_LEVEL = os.getenv["LOG_LEVEL"]
+LOG_FILE = os.getenv["LOG_FILE"]
+LOGGER_NAME = os.getenv["LOGGER_NAME"]
 
 # Configure logging
 logging.basicConfig(
