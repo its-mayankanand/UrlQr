@@ -22,3 +22,8 @@
 2025-08-29 20:20:23,631 - INFO - urlqr - FastAPI application has started successfully.
 2025-08-29 20:20:23,972 - INFO - urlqr - FastAPI application is shutting down.
 2025-08-29 20:20:26,402 - INFO - urlqr - FastAPI application has started successfully.
+2025-08-30 12:46:34,156 - INFO - urlqr - Application startup
+2025-08-30 12:46:53,844 - INFO - app.api.v1.qr - Received QR generation request for URL: https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa
+2025-08-30 12:46:53,844 - INFO - urlqr - Generating QR code for URL: https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa
+2025-08-30 12:46:53,884 - INFO - urlqr - QR code generation completed successfully.
+2025-08-30 12:46:53,884 - INFO - app.api.v1.qr - QR code generated successfully.
