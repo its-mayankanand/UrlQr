@@ -6,6 +6,7 @@ from app.api.v1 import qr
 from app.core.config import logger  # optional if you want to use your logger
 
 # Lifespan context manager to replace deprecated @app.on_event
+# these are new way to write FastAPI 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Application startup")
