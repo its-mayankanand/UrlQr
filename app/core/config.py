@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Load variables from .env file
 load_dotenv()
 
-# Read values from environment (must exist in .env or system env)
+# Read values from environment
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOG_FILE = os.getenv("LOG_FILE", "app.log")
 
