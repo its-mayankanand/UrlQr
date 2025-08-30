@@ -2,13 +2,13 @@ import logging
 import os
 from dotenv import load_dotenv
 
+
 # Load variables from .env file
 load_dotenv()
 
 # Read values from environment (must exist in .env or system env)
-LOG_LEVEL = os.getenv["LOG_LEVEL"]
-LOG_FILE = os.getenv["LOG_FILE"]
-LOGGER_NAME = os.getenv["LOGGER_NAME"]
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_FILE = os.getenv("LOG_FILE", "app.log")
 
 # Configure logging
 logging.basicConfig(
@@ -21,4 +21,4 @@ logging.basicConfig(
 )
 
 # Create a reusable project-wide logger
-logger = logging.getLogger(LOGGER_NAME)
+logger = logging.getLogger("app_logger")
