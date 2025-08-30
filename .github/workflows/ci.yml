@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["**"]                          # Run CI when code is pushed to dev branch
+    branches: ["**"]                       # Run CI when code is pushed to any branch
   pull_request:
 
 jobs:
