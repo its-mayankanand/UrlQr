@@ -3,3 +3,6 @@ urlqrvenv/
 
 # Environment files
 .env
+
+#Ignore log file
+app.log
