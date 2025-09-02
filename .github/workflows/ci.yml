@@ -110,3 +110,5 @@ jobs:
             docker rm urlqr || true
             docker run -d --name urlqr -p 5000:5000 itsmayankanand/urlqr:release-${{ github.event.release.tag_name }}
           EOF
+
+          
