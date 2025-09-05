@@ -91,7 +91,7 @@ jobs:
             itsmayankanand/urlqr:release-${{ github.event.release.tag_name }}
             itsmayankanand/urlqr:${{ github.event.release.tag_name }}
   
-  deploy:                                        #  JOB 4: Deploy to VM when new release
+  deploy:                            # JOB 4: Deploy to VM when new release with tag
     runs-on: ubuntu-latest
     needs: docker-release
     if: github.event_name == 'release' && github.event.action == 'published'
