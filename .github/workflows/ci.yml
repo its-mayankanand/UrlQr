@@ -120,7 +120,7 @@ jobs:
           # Restart with correct tag (pass TAG to docker compose)
           TAG=release-${{ github.event.release.tag_name }} docker compose down
           TAG=release-${{ github.event.release.tag_name }} docker compose up -d --force-recreate
-        EOF
+          EOF
 
 
       - name: Health check (wait until app is ready)
