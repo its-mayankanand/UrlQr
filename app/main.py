@@ -13,8 +13,9 @@ It sets up:
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+
 from app.api.v1 import qr
+from fastapi.responses import FileResponse, JSONResponse
 from app.core.config import logger  # optional if you want to use your logger
 
 
@@ -39,6 +40,12 @@ app = FastAPI(
 
 # Register router for QR code generation APIs (all endpoints under /api/v1/qr)
 app.include_router(qr.router, prefix="/api/v1/qr", tags=["QR"])
+
+
+# Health endpoint (simple check to see if the app is running)
+@app.get("/health")
+def health_check():
+    return JSONResponse(content={"status": "ok"})
 
 
 # Mount static frontend files (React/Vue/HTML assets etc.) under /frontend
