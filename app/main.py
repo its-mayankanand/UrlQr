@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.v1 import qr
 from fastapi.responses import FileResponse, JSONResponse
 from app.core.config import logger  # optional if you want to use your logger
-
+import os
 
 # Lifespan context manager for FastAPI
 # Replaces deprecated @app.on_event("startup") / @app.on_event("shutdown")
@@ -56,3 +56,16 @@ app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 @app.get("/")
 def read_index():
     return FileResponse("frontend/index.html")
+
+
+# Whoami endpoint to check which container handled the request
+@app.get("/whoami")
+def whoami():
+    """
+    Returns which container handled the request.
+    Useful for testing load balancing via Nginx.
+    """
+    return JSONResponse(content={"container": os.environ.get("HOSTNAME", "unknown")})
+
+
+
