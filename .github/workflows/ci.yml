@@ -115,12 +115,11 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
           cd ~/urlqr-stack
 
-          # Pull the release image
-          docker pull itsmayankanand/urlqr:release-${{ github.event.release.tag_name }}
-
-          # Restart with correct tag (pass TAG to docker compose)
-          TAG=release-${{ github.event.release.tag_name }} docker compose down
-          TAG=release-${{ github.event.release.tag_name }} docker compose up -d --force-recreate
+          # Pull new image only for app1 and app2 and recreate
+          TAG=release-${{ github.event.release.tag_name }} docker compose pull app1 app2
+        
+          # Restart only app1 and app2 containers 
+          TAG=release-${{ github.event.release.tag_name }} docker compose up -d --no-deps app1 app2  
           EOF
 
 
