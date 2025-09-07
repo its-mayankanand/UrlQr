@@ -105,9 +105,10 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.GCP_SSH_KEY }}
 
-      - name: Copy deployment files to VM        # send docker-compose + nginx.conf
+      - name: Copy deployment files to VM
         run: |
-          scp -o StrictHostKeyChecking=no -r deploy/ ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/urlqr-stack"
+          scp -o StrictHostKeyChecking=no deploy/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
 
       - name: Deploy with Docker Compose         # use compose + dynamic TAG
         run: |
