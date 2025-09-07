@@ -107,7 +107,7 @@ jobs:
 
       - name: Copy deployment files to VM        # send docker-compose + nginx.conf
         run: |
-          scp -o StrictHostKeyChecking=no -r deploy/ ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack
+          scp -o StrictHostKeyChecking=no -r deploy/ ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
 
       - name: Deploy with Docker Compose         # use compose + dynamic TAG
         run: |
