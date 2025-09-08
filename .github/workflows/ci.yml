@@ -135,7 +135,10 @@ jobs:
             sleep 5
           done
           echo "Application did not become healthy in time."
-          exit 1               
+          exit 1    
+                     
+      - name: Install dependencies for automation tests
+        run: pip install -r requirements.txt   # <-- add th
 
       - name: Run automated QR API tests                
         run: |
