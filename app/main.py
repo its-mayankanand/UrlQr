@@ -16,7 +16,8 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.v1 import qr
 from fastapi.responses import FileResponse, JSONResponse
-from app.core.config import logger  # optional if you want to use your logger
+from app.core.config import logger        # optional if you want to use your logger
+from fastapi import Query
 import os
 
 # Lifespan context manager for FastAPI

@@ -137,3 +137,6 @@ jobs:
           echo "Application did not become healthy in time."
           exit 1
 
+      - name: Run automated QR API tests                
+        run: |
+          python automation_tests/qr_api_test.py
