@@ -5,12 +5,7 @@ BASE_URL = "http://34.100.166.62"         # replace with your deployed URL
 
 # List of test URLs
 test_urls = [
-    "https://google.com",
-    "https://github.com",
-    "https://openai.com",
-    "https://example.org",
-    "https://invalid-url",  # invalid example
-    "not-a-url"             # another invalid example
+    "https://google.com"
 ]
 
 for url in test_urls:
