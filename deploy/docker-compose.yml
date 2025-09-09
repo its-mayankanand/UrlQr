@@ -1,25 +1,35 @@
 version: "3.8"
 
 services:
-  app1:
-    image: itsmayankanand/urlqr:${TAG}       # TAG will be passed by pipeline
-    container_name: urlqr-app1
+  # BLUE apps (stable)
+  app1-blue:
+    image: itsmayankanand/urlqr:${TAG}
+    container_name: urlqr-app1-blue
     restart: always
 
-  app2:
+  app2-blue:
     image: itsmayankanand/urlqr:${TAG}
-    container_name: urlqr-app2
+    container_name: urlqr-app2-blue
+    restart: always
+
+  # GREEN apps (new release)
+  app1-green:
+    image: itsmayankanand/urlqr:${TAG}
+    container_name: urlqr-app1-green
+    restart: always
+
+  app2-green:
+    image: itsmayankanand/urlqr:${TAG}
+    container_name: urlqr-app2-green
     restart: always
 
   nginx:
     image: nginx:alpine
     container_name: urlqr-nginx
     ports:
-      - "80:80"                              # expose Nginx on VM’s port 80
+      - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     restart: always
-
-    
 
 

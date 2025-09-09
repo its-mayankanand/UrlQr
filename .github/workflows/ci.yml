@@ -109,19 +109,51 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/urlqr-stack"
           scp -o StrictHostKeyChecking=no deploy/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
-
-      - name: Deploy with Docker Compose         # use compose + dynamic TAG
+      
+      - name: Deploy new GREEN containers
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          cd ~/urlqr-stack
-
-          # Pull new image only for app1 and app2 and recreate
-          TAG=release-${{ github.event.release.tag_name }} docker compose pull app1 app2
-        
-          # Restart only app1 and app2 containers 
-          TAG=release-${{ github.event.release.tag_name }} docker compose up -d --no-deps app1 app2  
+            cd ~/urlqr-stack
+            TAG=release-${{ github.event.release.tag_name }} docker compose up -d --no-deps app1-green app2-green
           EOF
 
+      - name: Run health checks on GREEN
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.VM_HOST }}/health || true)
+            if [ "$STATUS" == "200" ]; then
+              echo "GREEN environment is healthy!"
+              exit 0
+            fi
+            echo "Waiting for GREEN... (status: $STATUS)"
+            sleep 5
+          done
+          echo "GREEN environment failed health check"
+          exit 1
+
+      - name: Run automation tests on GREEN
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd ~/urlqr-stack
+            TAG=release-${{ github.event.release.tag_name }} python3 automation_tests/qr_api_tests.py
+          EOF
+
+      - name: Switch Nginx from BLUE → GREEN
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd ~/urlqr-stack
+            # Swap nginx.conf to green version
+            cp nginx.green.conf nginx.conf
+            docker exec urlqr-nginx nginx -s reload
+          EOF
+
+      - name: Remove old BLUE containers
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd ~/urlqr-stack
+            docker compose stop app1-blue app2-blue
+            docker compose rm -f app1-blue app2-blue
+          EOF
 
       - name: Health check (wait until app is ready)
         run: |
@@ -138,7 +170,7 @@ jobs:
           exit 1    
                      
       - name: Install dependencies for automation tests
-        run: pip install -r requirements.txt   # <-- add th
+        run: pip install -r requirements.txt                # <-- add th
 
       - name: Run automated QR API tests                
         run: |
