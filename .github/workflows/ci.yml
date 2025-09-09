@@ -135,6 +135,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
             cd ~/urlqr-stack
+            pip3 install -r requirements.txt
             TAG=release-${{ github.event.release.tag_name }} python3 automation_tests/qr_api_tests.py
           EOF
 
