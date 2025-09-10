@@ -142,13 +142,21 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
           cd ~/urlqr-stack
-          # Create a virtual environment
-          python3 -m venv venv
+          # Make sure venv support is installed
+          sudo apt update
+          sudo apt install -y python3-venv python3-full
+
+          # Create virtual environment if not already there
+          if [ ! -d "venv" ]; then
+            python3 -m venv venv
+          fi
+
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           TAG=release-${{ github.event.release.tag_name }} python automation_tests/qr_api_tests.py
           EOF
+
 
       - name: Switch Nginx from BLUE → GREEN
         run: |
