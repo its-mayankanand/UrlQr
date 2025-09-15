@@ -99,96 +99,98 @@ jobs:
             itsmayankanand/urlqr:${{ github.event.release.tag_name }}
   
   deploy:                            # JOB 4: Deploy to VM when new release with tag
-    runs-on: ubuntu-latest
-    needs: docker-release
-    if: github.event_name == 'release' && github.event.action == 'published'
+  runs-on: ubuntu-latest
+  needs: docker-release
+  if: github.event_name == 'release' && github.event.action == 'published'
 
-    steps:
-      - name: Checkout repo                      # checkout to access deploy/ folder
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.GCP_SSH_KEY }}
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.GCP_SSH_KEY }}
 
-      - name: Copy deployment files to VM
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/urlqr-stack"
-          scp -o StrictHostKeyChecking=no -r deploy automation_tests ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
+    - name: Copy deployment files to VM
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/urlqr-stack"
+        scp -o StrictHostKeyChecking=no -r deploy automation_tests ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
 
-      - name: Deploy new GREEN containers
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd ~/urlqr-stack
-            TAG=release-${{ github.event.release.tag_name }} docker compose up -d --no-deps app1-green app2-green
-          EOF
+    - name: Deploy inactive environment
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+        cd ~/urlqr-stack
 
-      - name: Run health checks on GREEN
-        run: |
-          for i in {1..10}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.VM_HOST }}/health || true)
-            if [ "$STATUS" == "200" ]; then
-              echo "GREEN environment is healthy!"
-              exit 0
-            fi
-            echo "Waiting for GREEN... (status: $STATUS)"
-            sleep 5
-          done
-          echo "GREEN environment failed health check"
-          exit 1
+        # Determine active color from nginx.conf
+        if grep -q "blue1" nginx.conf; then
+          ACTIVE=blue
+          INACTIVE=green
+        else
+          ACTIVE=green
+          INACTIVE=blue
+        fi
 
-      - name: Run automation tests on GREEN
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          cd ~/urlqr-stack
-          # Make sure venv support is installed
-          sudo apt update
-          sudo apt install -y python3-venv python3-full
+        echo "Currently active=$ACTIVE, deploying new=$INACTIVE"
 
-          # Create virtual environment if not already there
-          if [ ! -d "venv" ]; then
-            python3 -m venv venv
+        # Start new version on inactive
+        TAG=release-${{ github.event.release.tag_name }} docker compose up -d --no-deps ${INACTIVE}1 ${INACTIVE}2
+        EOF
+
+    - name: Run health checks on inactive
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+        cd ~/urlqr-stack
+        for i in {1..10}; do
+          STATUS=$(docker exec urlqr-nginx curl -s -o /dev/null -w "%{http_code}" ${INACTIVE}1:8000/health || true)
+          if [ "$STATUS" == "200" ]; then
+            echo "$INACTIVE environment is healthy!"
+            exit 0
           fi
+          echo "Waiting for $INACTIVE... (status: $STATUS)"
+          sleep 5
+        done
+        echo "$INACTIVE failed health check"
+        exit 1
+        EOF
 
+    - name: Run automation tests on inactive
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          cd ~/urlqr-stack
+          python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           TAG=release-${{ github.event.release.tag_name }} python automation_tests/qr_api_tests.py
-          EOF
+        EOF
 
+    - name: Switch Nginx to inactive (promote)
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+        cd ~/urlqr-stack
+        cp nginx.${INACTIVE}.conf nginx.conf
+        docker exec urlqr-nginx nginx -s reload
+        EOF
 
-      - name: Switch Nginx from BLUE → GREEN
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd ~/urlqr-stack
-            # Swap nginx.conf to green version
-            cp nginx.green.conf nginx.conf
-            docker exec urlqr-nginx nginx -s reload
-          EOF
+    - name: Stop old active environment
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+        cd ~/urlqr-stack
+        docker compose stop ${ACTIVE}1 ${ACTIVE}2
+        docker compose rm -f ${ACTIVE}1 ${ACTIVE}2
+        EOF
 
-      - name: Remove old BLUE containers
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd ~/urlqr-stack
-            docker compose stop app1-blue app2-blue
-            docker compose rm -f app1-blue app2-blue
-          EOF
-
-      - name: Health check (wait until app is ready)
-        run: |
-          for i in {1..10}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.VM_HOST }}/health || true)
-            if [ "$STATUS" == "200" ]; then
-              echo "Application is healthy behind Nginx!"
-              exit 0
-            fi
-            echo "Waiting for app behind Nginx... (status: $STATUS)"
-            sleep 5
-          done
-          echo "Application did not become healthy in time."
-          exit 1    
-                     
-      - name: Run automated QR API tests                
-        run: |
-          python automation_tests/qr_api_tests.py
+    - name: Final health check through Nginx
+      run: |
+        for i in {1..10}; do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.VM_HOST }}/health || true)
+          if [ "$STATUS" == "200" ]; then
+            echo "Application is healthy behind Nginx!"
+            exit 0
+          fi
+          echo "Waiting for app behind Nginx... (status: $STATUS)"
+          sleep 5
+        done
+        echo "Application did not become healthy in time."
+        exit 1

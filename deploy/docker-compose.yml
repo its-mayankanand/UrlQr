@@ -1,26 +1,23 @@
 version: "3.8"
-
 services:
-  # BLUE apps (stable)
-  app1-blue:
+  blue1:
     image: itsmayankanand/urlqr:${TAG}
-    container_name: urlqr-app1-blue
+    container_name: urlqr-blue1
     restart: always
 
-  app2-blue:
+  blue2:
     image: itsmayankanand/urlqr:${TAG}
-    container_name: urlqr-app2-blue
+    container_name: urlqr-blue2
     restart: always
 
-  # GREEN apps (new release)
-  app1-green:
+  green1:
     image: itsmayankanand/urlqr:${TAG}
-    container_name: urlqr-app1-green
+    container_name: urlqr-green1
     restart: always
 
-  app2-green:
+  green2:
     image: itsmayankanand/urlqr:${TAG}
-    container_name: urlqr-app2-green
+    container_name: urlqr-green2
     restart: always
 
   nginx:
@@ -31,5 +28,3 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     restart: always
-
-
