@@ -125,7 +125,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
             cd ~/urlqr-stack
             export TAG=release-${{ github.event.release.tag_name }}
-            docker compose -f docker-compose.yml up -d --no-deps green1 green2
+            docker compose -f docker-compose.yml up -d --no-deps app1-green app2-green
           EOF
 
       # Health check GREEN
@@ -168,8 +168,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
             cd ~/urlqr-stack
-            docker compose -f docker-compose.yml stop blue1 blue2
-            docker compose -f docker-compose.yml rm -f blue1 blue2
+            docker compose -f docker-compose.yml stop app1-blue app2-blue
+            docker compose -f docker-compose.yml rm -f app1-blue app2-blue
           EOF
 
 
