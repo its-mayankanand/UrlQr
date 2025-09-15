@@ -117,69 +117,59 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/urlqr-stack"
           scp -o StrictHostKeyChecking=no -r deploy automation_tests ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
 
-      - name: Deploy inactive environment
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          cd ~/urlqr-stack
-
-          # Determine active color from nginx.conf
-          if grep -q "blue1" nginx.conf; then
-            ACTIVE=blue
-            INACTIVE=green
-          else
-            ACTIVE=green
-            INACTIVE=blue
-          fi
-
-          echo "Currently active=$ACTIVE, deploying new=$INACTIVE"
-
-          # Start new version on inactive
-          TAG=release-${{ github.event.release.tag_name }} docker compose up -d --no-deps ${INACTIVE}1 ${INACTIVE}2
-          EOF
-
-      - name: Run health checks on inactive
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          cd ~/urlqr-stack
-          for i in {1..10}; do
-            STATUS=$(docker exec urlqr-nginx curl -s -o /dev/null -w "%{http_code}" ${INACTIVE}1:8000/health || true)
-            if [ "$STATUS" == "200" ]; then
-              echo "$INACTIVE environment is healthy!"
-              exit 0
-            fi
-            echo "Waiting for $INACTIVE... (status: $STATUS)"
-            sleep 5
-          done
-          echo "$INACTIVE failed health check"
-          exit 1
-          EOF
-
-      - name: Run automation tests on inactive
+      # Deploy GREEN (new version) with TAG substitution
+      - name: Deploy new GREEN containers
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
             cd ~/urlqr-stack
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements.txt
-            TAG=release-${{ github.event.release.tag_name }} python automation_tests/qr_api_tests.py
+            export TAG=release-${{ github.event.release.tag_name }}
+            docker compose -f docker-compose.yml up -d --no-deps green1 green2
           EOF
 
-      - name: Switch Nginx to inactive (promote)
+      # Health check GREEN
+      - name: Run health checks on GREEN
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.VM_HOST }}/health || true)
+            if [ "$STATUS" == "200" ]; then
+              echo "GREEN environment is healthy!"
+              exit 0
+            fi
+            echo "Waiting for GREEN... (status: $STATUS)"
+            sleep 5
+          done
+          echo "GREEN environment failed health check"
+          exit 1
+
+      # Run automation tests inside GREEN
+      - name: Run automation tests on GREEN
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          cd ~/urlqr-stack
-          cp nginx.${INACTIVE}.conf nginx.conf
-          docker exec urlqr-nginx nginx -s reload
+            cd ~/urlqr-stack
+            pip3 install --upgrade pip
+            pip3 install -r requirements.txt --break-system-packages
+            export TAG=release-${{ github.event.release.tag_name }}
+            python3 automation_tests/qr_api_tests.py
           EOF
 
-      - name: Stop old active environment
+      # Switch Nginx from BLUE → GREEN
+      - name: Switch Nginx from BLUE → GREEN
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          cd ~/urlqr-stack
-          docker compose stop ${ACTIVE}1 ${ACTIVE}2
-          docker compose rm -f ${ACTIVE}1 ${ACTIVE}2
+            cd ~/urlqr-stack
+            cp nginx.green.conf nginx.conf
+            docker exec urlqr-nginx nginx -s reload
           EOF
+
+      # Stop old BLUE containers
+      - name: Remove old BLUE containers
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd ~/urlqr-stack
+            docker compose -f docker-compose.yml stop blue1 blue2
+            docker compose -f docker-compose.yml rm -f blue1 blue2
+          EOF
+
 
       - name: Final health check through Nginx
         run: |
