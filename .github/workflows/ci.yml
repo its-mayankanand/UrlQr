@@ -149,8 +149,7 @@ jobs:
     
       - name: Run automation tests
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} 
-          'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
             cd ~/urlqr-stack
             # Ensure dependencies are installed (only first time installs)
             pip install -r requirements.txt
