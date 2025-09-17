@@ -117,6 +117,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p ~/urlqr-stack"
           scp -o StrictHostKeyChecking=no deploy/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
+          scp -o StrictHostKeyChecking=no -r automation_tests ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
+          scp -o StrictHostKeyChecking=no requirements.txt ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/urlqr-stack/
+
+
 
       - name: Deploy with Docker Compose          # use compose + dynamic TAG
         run: |
