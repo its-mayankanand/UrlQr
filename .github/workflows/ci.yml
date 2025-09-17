@@ -151,10 +151,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} 
           'EOF'
-          cd ~/urlqr-stack
-          # Ensure dependencies are installed (only first time installs)
-          pip install -r requirements.txt
-          # Run your test script
-          python3 automation_tests/qr_api_tests_.py
+            cd ~/urlqr-stack
+            # Ensure dependencies are installed (only first time installs)
+            pip install -r requirements.txt
+            # Run your test script
+            python3 automation_tests/qr_api_tests_.py
           EOF
 
