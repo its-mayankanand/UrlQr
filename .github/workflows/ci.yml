@@ -158,6 +158,6 @@ jobs:
             # Ensure dependencies are installed (only first time installs)
             pip install -r requirements.txt
             # Run your test script
-            python3 automation_tests/qr_api_tests_.py
+            python3 automation_tests/qr_api_tests.py
           EOF
 
