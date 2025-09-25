@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     yield                                # Control passes to the app while running
     logger.info("Application shutdown")  # Log when app shuts down
 
-
+# app instance
 # Create FastAPI application instance with metadata
 app = FastAPI(
     title="QR Generator from URL",             # Project title
